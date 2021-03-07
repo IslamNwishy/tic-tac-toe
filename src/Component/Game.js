@@ -14,8 +14,7 @@ class Game extends Component {
   InfoText = "Player Turn";
 
   componentDidMount() {
-    var StartBoard = initialize_board();
-    this.setState({ board: StartBoard });
+    this.RestartTheGame();
   }
   componentDidUpdate() {
     if (this.state.turn % 2 !== 0 && this.state.gameState <= 0) {
@@ -62,13 +61,23 @@ class Game extends Component {
     this.MakeMove(x, y);
   };
 
+  RestartTheGame = () => {
+    var StartBoard = initialize_board();
+    this.setState({ board: StartBoard, turn: 0, gameState: 0 });
+  };
+
   render() {
     return (
       <div className="container">
         <BoardRend board={this.state.board} doOnClick={this.ButtonOnClick} />
         <p className={this.textClass}>{this.InfoText}</p>
         {this.state.gameState > 0 ? (
-          <button className="btn btn-dark">Try Again?</button>
+          <button
+            className="btn btn-outline-light"
+            onClick={this.RestartTheGame}
+          >
+            Try Again?
+          </button>
         ) : (
           <p></p>
         )}
