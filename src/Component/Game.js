@@ -19,7 +19,7 @@ class Game extends Component {
   }
   componentDidUpdate() {
     if (this.state.turn % 2 !== 0 && this.state.gameState <= 0) {
-      var NewPos = AITurn(this.state.board, this.state.turn, this.P1, this.AI);
+      var NewPos = AITurn(this.state.board, this.P1, this.AI);
       this.MakeMove(NewPos.x, NewPos.y);
     }
   }
@@ -32,8 +32,8 @@ class Game extends Component {
       var newturn = this.state.turn + 1;
       this.setState({ board: newBoard, turn: newturn });
 
-      console.log(isEnd(this.state.board, this.state.turn));
-      switch (isEnd(this.state.board, this.state.turn)) {
+      console.log(isEnd(this.state.board));
+      switch (isEnd(this.state.board)) {
         case this.P1:
           this.InfoText = "Player Wins!";
           this.setState({ gameState: 1 });
@@ -67,6 +67,11 @@ class Game extends Component {
       <div className="container">
         <BoardRend board={this.state.board} doOnClick={this.ButtonOnClick} />
         <p className={this.textClass}>{this.InfoText}</p>
+        {this.state.gameState > 0 ? (
+          <button className="btn btn-dark">Try Again?</button>
+        ) : (
+          <p></p>
+        )}
       </div>
     );
   }

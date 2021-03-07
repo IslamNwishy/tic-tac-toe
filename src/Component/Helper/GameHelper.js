@@ -14,7 +14,7 @@ function initialize_board() {
   return board;
 }
 
-function isEnd(board, turnCount) {
+function isEnd(board) {
   //vertical win
   for (var i = 0; i < BOARDW; i++) {
     var state = board[0][i].val;
@@ -37,16 +37,11 @@ function isEnd(board, turnCount) {
   if (state !== "" && board[0][2].val === state && board[2][0].val === state)
     return state;
 
-  //tie
-  //   if (turnCount >= 8) return "";
   for (i = 0; i < BOARDW; i++)
     for (var j = 0; j < BOARDW; j++) {
       if (board[i][j].val === "") return null;
     }
   return "";
-
-  //   //game has not ended
-  //   return null;
 }
 
 function _evaluate(board, notAllowed) {
@@ -92,25 +87,25 @@ function _evaluate(board, notAllowed) {
   return wins;
 }
 
-function evaluate(board, turnCount, p1, ai) {
-  var check = isEnd(board, turnCount);
-  switch (check) {
-    case p1:
-      return -10;
-    case ai:
-      return 10;
-    case "":
-      return null;
-    default:
-  }
-
+function evaluate(board, p1, ai) {
   var AIChances = _evaluate(board, p1);
   var P1Chances = _evaluate(board, ai);
 
-  return AIChances - P1Chances;
+  var res = AIChances - P1Chances;
+  var check = isEnd(board);
+  switch (check) {
+    case p1:
+      return [res - 10, true];
+    case ai:
+      return [res + 10, true];
+    case "":
+      return [res, true];
+    default:
+  }
+  return [res, false];
 }
 
-function _max(board, turnCount, depth, isMax, p1, ai) {
+function _max(board, depth, isMax, p1, ai) {
   var best = -1000;
 
   for (var i = 0; i < BOARDW; i++)
@@ -118,18 +113,16 @@ function _max(board, turnCount, depth, isMax, p1, ai) {
       var temp = board[i][j].val;
       if (temp === "") {
         board[i][j].val = ai;
-        turnCount++;
 
-        var current = minimax(board, turnCount, depth + 1, !isMax, p1, ai);
+        var current = minimax(board, depth + 1, !isMax, p1, ai);
         if (current > best) best = current;
         board[i][j].val = temp;
-        turnCount--;
       }
     }
   return best;
 }
 
-function _min(board, turnCount, depth, isMax, p1, ai) {
+function _min(board, depth, isMax, p1, ai) {
   var best = 1000;
 
   for (var i = 0; i < BOARDW; i++)
@@ -137,27 +130,24 @@ function _min(board, turnCount, depth, isMax, p1, ai) {
       var temp = board[i][j].val;
       if (temp === "") {
         board[i][j].val = p1;
-        turnCount++;
 
-        var current = minimax(board, turnCount, depth + 1, !isMax, p1, ai);
+        var current = minimax(board, depth + 1, !isMax, p1, ai);
         if (current < best) best = current;
         board[i][j].val = temp;
-        turnCount--;
       }
     }
   return best;
 }
 
-function minimax(board, turnCount, depth, isMax, p1, ai) {
-  var score = evaluate(board, turnCount, p1, ai);
-  if (score === 10 || score === -10) return score;
-  if (score === null) return 0;
+function minimax(board, depth, isMax, p1, ai) {
+  var score = evaluate(board, p1, ai);
+  if (score[1]) return score[0];
 
-  if (isMax) return _max(board, turnCount, depth, isMax, p1, ai);
-  else return _min(board, turnCount, depth, isMax, p1, ai);
+  if (isMax) return _max(board, depth, isMax, p1, ai);
+  else return _min(board, depth, isMax, p1, ai);
 }
 
-function AITurn(board, turnCount, p1, ai) {
+function AITurn(board, p1, ai) {
   var BestVal = -1000;
   var Px = -1;
   var Py = -1;
@@ -166,11 +156,9 @@ function AITurn(board, turnCount, p1, ai) {
       var temp = board[i][j].val;
       if (temp === "") {
         board[i][j].val = ai;
-        turnCount++;
-        var MoveVal = minimax(board, turnCount, 0, false, p1, ai);
+        var MoveVal = minimax(board, 0, false, p1, ai);
 
         board[i][j].val = temp;
-        turnCount--;
         if (MoveVal > BestVal) {
           Px = i;
           Py = j;
