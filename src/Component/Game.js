@@ -34,7 +34,6 @@ class Game extends Component {
       var newturn = this.state.turn + 1;
       this.setState({ board: newBoard, turn: newturn });
 
-      console.log(isEnd(this.state.board));
       switch (isEnd(this.state.board)) {
         case this.P1:
           this.InfoText = "Player Wins!";
@@ -52,7 +51,6 @@ class Game extends Component {
           this.setState({ gameState: 2 });
           break;
         default:
-          console.log(this.state.turn);
           this.InfoText =
             (this.state.turn - 1) % 2 === 0 ? "Player Turn" : "AI Turn";
           this.setState({ gameState: 0 });
