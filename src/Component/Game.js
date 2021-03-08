@@ -12,6 +12,9 @@ class Game extends Component {
   AI = "O";
   textClass = "text-white mt-5 fs-3";
   InfoText = "Player Turn";
+  GamesAIWon = 0;
+  GamesP1Won = 0;
+  GamesTied = 0;
 
   componentDidMount() {
     this.RestartTheGame();
@@ -35,14 +38,17 @@ class Game extends Component {
       switch (isEnd(this.state.board)) {
         case this.P1:
           this.InfoText = "Player Wins!";
+          this.GamesP1Won++;
           this.setState({ gameState: 1 });
           break;
         case this.AI:
           this.InfoText = "AI Wins!";
+          this.GamesAIWon++;
           this.setState({ gameState: 1 });
           break;
         case "":
           this.InfoText = "Game is a Tie";
+          this.GamesTied++;
           this.setState({ gameState: 2 });
           break;
         default:
@@ -63,12 +69,28 @@ class Game extends Component {
 
   RestartTheGame = () => {
     var StartBoard = initialize_board();
-    this.setState({ board: StartBoard, turn: 0, gameState: 0 });
+    var WhichTurn = (this.GamesAIWon + this.GamesP1Won + this.GamesTied) % 2;
+    this.InfoText = "Player Turn";
+    this.setState({ board: StartBoard, turn: WhichTurn, gameState: 0 });
   };
 
   render() {
     return (
       <div className="container">
+        <div className="row justify-content-center align-items-center text-white mt-2 fs-5">
+          <div className="col">
+            <p>Player</p>
+            <span className="fs-3">{this.GamesP1Won}</span>
+          </div>
+          <div className="col">
+            <p>Tied</p>
+            <span className="fs-3">{this.GamesTied}</span>
+          </div>
+          <div className="col">
+            <p>AI</p>
+            <span className="fs-3">{this.GamesAIWon}</span>
+          </div>
+        </div>
         <BoardRend board={this.state.board} doOnClick={this.ButtonOnClick} />
         <p className={this.textClass}>{this.InfoText}</p>
         {this.state.gameState > 0 ? (
